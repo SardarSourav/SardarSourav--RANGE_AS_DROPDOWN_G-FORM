@@ -1,40 +1,51 @@
-  function populateFormFromSheet() {
-    try {
-      // Replace 'YOUR_FORM_URL' with your actual form URL
-      var formUrl = 'https://docs.google.com/forms/d/12pg9SezlzBD/edit';
-      var form = FormApp.openByUrl(formUrl);
+function populateFormFromSheet() {
+  try {
+    // Replace 'YOUR_FORM_URL' with your actual form URL
+    var formUrl = 'https://docs.google.com/forms/d/1glCwAX5/edit';
+    var form = FormApp.openByUrl(formUrl);
 
-      // Replace 'YOUR_SHEET_URL' and 'YOUR_SHEET_NAME' with your actual sheet URL and sheet name
-      var sheetUrl = 'https://docs.google.com/spreadsheets/d/18xOaAVe/edit?resourcekey#gid=1544344578';
-      var sheet = SpreadsheetApp.openByUrl(sheetUrl).getSheetByName('MANUAL/OLD_DATA');
+    // Replace 'YOUR_SHEET_URL' and 'YOUR_SHEET_NAME' with your actual sheet URL and sheet name
+    var sheetUrl = 'https://docs.google.com/spreadsheets/d/18xOaAVe5sgH/edit?resourcekey#gid=838965824';
+    var sheet = SpreadsheetApp.openByUrl(sheetUrl).getSheetByName('MAIN_');
 
-      // Get the data in column A of the sheet
-      var data = sheet.getRange("A2:A").getValues();
-      var data = sheet.getRange("B2:B").getValues();
-      // Get the form items
-      var items = form.getItems();
+     Logger.log('Unique Choices B: ' + JSON.stringify(uniqueChoicesB));
+     Logger.log('Unique Choices C: ' + JSON.stringify(uniqueChoicesC));
 
-      // Assuming the first item in the form is a multiple-choice question(IF YOU WANT TO CHANGE THE QUESTION NUMBWER IN YOUR FORM WHERE TO POPULATE, YOU HAVE TO PYT THE QUESTION NUMBER WHICH START FORM 0...4..., ALSO YOU CAN IMPORT MORE THAN 1 CLM FOR MORE THAN 1 QUESTION JUST BY ENTERING NEW LINE TO GET DAT AND QUESTION ITEM)
-      var firstQuestionItem = items[0];
-      var firstQuestionItem = items[1];
 
-      // Check if the first item is a multiple-choice question
-      if (firstQuestionItem.getType() === FormApp.ItemType.MULTIPLE_CHOICE) {
-        // Extract unique choices from the data (remove duplicates)
-        var uniqueChoices = data.map(function (row) {
-          return row[0];
-        }).filter(function (value, index, self) {
-          return self.indexOf(value) === index;
-        });
+    // Get the data in column B and C of the sheet
+    var dataB = sheet.getRange("B2:B").getValues();
+    var dataC = sheet.getRange("C2:C").getValues();
 
-        // Set the choice values for the multiple-choice question
-        firstQuestionItem.asMultipleChoiceItem().setChoiceValues(uniqueChoices);
+    // Get the form items
+    var items = form.getItems();
 
-        Logger.log('Form population completed successfully.');
-      } else {
-        Logger.log('Error: The first item in the form is not a multiple-choice question.');
-      }
-    } catch (error) {
-      Logger.log('Error: ' + error.toString());
+    // Assuming the first and second items in the form are multiple-choice questions
+    var firstQuestionItem = items[0];
+    var secondQuestionItem = items[1];
+
+    // Check if the items are multiple-choice questions
+    if (
+      firstQuestionItem.getType() === FormApp.ItemType.MULTIPLE_CHOICE &&
+      secondQuestionItem.getType() === FormApp.ItemType.MULTIPLE_CHOICE
+    ) {
+      // Extract unique choices from the data (remove duplicates)
+      var uniqueChoicesB = dataB.flat().filter(function (value) {
+        return value !== "";
+      });
+
+      var uniqueChoicesC = dataC.flat().filter(function (value) {
+        return value !== "";
+      });
+
+      // Set the choice values for the multiple-choice questions
+      firstQuestionItem.asMultipleChoiceItem().setChoiceValues(uniqueChoicesB);
+      secondQuestionItem.asMultipleChoiceItem().setChoiceValues(uniqueChoicesC);
+
+      Logger.log('Form population completed successfully.');
+    } else {
+      Logger.log('Error: The first or second item in the form is not a multiple-choice question.');
     }
+  } catch (error) {
+    Logger.log('Error: ' + error.toString());
   }
+}
